@@ -154,7 +154,7 @@ export async function createLyrics(detail: PlayerDetails, signal: AbortSignal): 
 
     let lyrics: LyricSourceResult | null = null;
     let sourceMap = newSourceMap();
-    
+
     // We depend on the cubey lyrics to fetch certain metadata, so we always call it even if it isn't the top priority
     let providerParameters: ProviderParameters = {
       song,
