@@ -1,6 +1,6 @@
 import { log } from "@utils";
 import type { LongBylineText, NextResponse, ThumbnailElement } from "@modules/lyrics/requestSniffer/NextResponse";
-import { parseTime } from "@modules/lyrics/providers/lrcUtils";
+import { parseTime } from "./utils";
 
 interface Segment {
   primaryVideoStartTimeMilliseconds: number;
@@ -263,7 +263,7 @@ export function setupRequestSniffer(): void {
               artist: primaryArtist,
               album: primaryAlbum,
               isVideo: primaryIsVideo,
-              durationMs: parseTime(primaryRenderer.lengthText.runs[0].text.replaceAll(".", ":")),
+              durationMs: parseTime(primaryRenderer.lengthText.runs[0].text),
               thumbnail: primaryThumbnail,
               smallThumbnail: primarySmallThumbnail,
             };
@@ -287,7 +287,7 @@ export function setupRequestSniffer(): void {
                   artist: counterpartArtist,
                   album: counterpartAlbum,
                   isVideo: counterpartIsVideo,
-                  durationMs: parseTime(counterPartRenderer.playlistPanelVideoRenderer.lengthText.runs[0].text.replaceAll(".", ":")),
+                  durationMs: parseTime(counterPartRenderer.playlistPanelVideoRenderer.lengthText.runs[0].text),
                   segmentMap: content.playlistPanelVideoWrapperRenderer!.counterpart[0].segmentMap,
                   thumbnail: counterpartThumbnail,
                   smallThumbnail: counterpartSmallThumbnail,
