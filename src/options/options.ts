@@ -2,9 +2,9 @@
 
 import { LOG_PREFIX, ROMANIZATION_LANGUAGES } from "@constants";
 import { getLanguageDisplayName, initI18n, loadLocaleOverride, SUPPORTED_LOCALES, t } from "@core/i18n";
+import { exportIdentity, getIdentity, importIdentity, type KeyIdentity } from "@core/keyIdentity";
 import Sortable from "sortablejs";
 import { showModal } from "./editor/ui/feedback";
-import { exportIdentity, getIdentity, importIdentity, type KeyIdentity } from "./store/keyIdentity";
 import { initStoreUI, setupYourThemesButton } from "./store/store";
 
 interface Options {
@@ -194,15 +194,18 @@ const restoreOptions = (): void => {
     isRomanizationEnabled: false,
     preferredProviderList: [
       "bLyrics-richsynced",
+      "unison-richsynced",
       "binimum-richsynced",
       "musixmatch-richsync",
       "yt-captions",
       "bLyrics-synced",
+      "unison-synced",
       "binimum-synced",
       "lrclib-synced",
       "legato-synced",
       "musixmatch-synced",
       "yt-lyrics",
+      "unison-plain",
       "lrclib-plain",
     ],
     romanizationDisabledLanguages: [],
@@ -241,15 +244,18 @@ const setOptionsInForm = (items: Options): void => {
   // Always recreate in the default order to make sure no items go missing
   let unseenProviders = [
     "bLyrics-richsynced",
+    "unison-richsynced",
     "binimum-richsynced",
     "musixmatch-richsync",
     "yt-captions",
     "bLyrics-synced",
+    "unison-synced",
     "binimum-synced",
     "lrclib-synced",
     "legato-synced",
     "musixmatch-synced",
     "yt-lyrics",
+    "unison-plain",
     "lrclib-plain",
   ];
 
@@ -289,6 +295,9 @@ const getProviderIdToInfoMap = (): { [key: string]: ProviderInfo } => ({
     name: t("options_provider_musixmatch"),
     syncType: "line",
   },
+  "unison-richsynced": { name: t("options_provider_betterLyricsUnison"), syncType: "syllable" },
+  "unison-synced": { name: t("options_provider_betterLyricsUnison"), syncType: "line" },
+  "unison-plain": { name: t("options_provider_betterLyricsUnison"), syncType: "unsynced" },
   "yt-captions": {
     name: t("options_provider_youtubeCaptions"),
     syncType: "line",
