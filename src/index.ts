@@ -7,9 +7,11 @@ import { setupRequestSniffer } from "@modules/lyrics/requestSniffer/requestSniff
 import {
   handleSettings,
   hideCursorOnIdle,
+  hideDockOnIdleInFullscreen,
   listenForPopupMessages,
   loadPassiveScrollSetting,
   loadTranslationSettings,
+  loadUnisonPinnedDockSettings,
   onAlbumArtEnabled,
 } from "@modules/settings/settings";
 import { injectHeadTags, reloadAlbumArt, setupAdObserver } from "@modules/ui/dom";
@@ -45,6 +47,7 @@ async function modify(): Promise<void> {
   setupWakeLockForFullscreen();
   loadTranslationSettings();
   loadPassiveScrollSetting();
+  loadUnisonPinnedDockSettings(hideDockOnIdleInFullscreen);
   subscribeToCustomStyles();
   await purgeExpiredKeys();
   await saveCacheInfo();
