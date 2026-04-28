@@ -2,7 +2,6 @@ import { MODAL_CLASS, MODAL_OVERLAY_CLASS, REPORT_MODAL } from "@/core/constants
 import { t } from "@/core/i18n";
 import { report, UnisonReportReason } from "../lyrics/providers/unison";
 
-let modalInitiated: boolean = false;
 let selected: string | null = null;
 
 function addRadioCheckbox(modal: HTMLElement, id: string, text: string) {
@@ -16,15 +15,13 @@ function addRadioCheckbox(modal: HTMLElement, id: string, text: string) {
   const button = document.createElement("button");
   button.className = `${MODAL_CLASS}--radio-button`;
 
-  button.addEventListener("click", () => {
+  radioCheckbox.addEventListener("click", () => {
     if (selected === id) {
       return;
     }
     const radios = Array.from(document.getElementsByClassName(`${MODAL_CLASS}--radio`));
-    document.startViewTransition(() => {
-      radios.forEach(el => el.classList.remove("blyrics-radio-selected"));
-      radioCheckbox.classList.add("blyrics-radio-selected");
-    });
+    radios.forEach(el => el.classList.remove("blyrics-radio-selected"));
+    radioCheckbox.classList.add("blyrics-radio-selected");
     selected = id;
   });
 
@@ -44,10 +41,9 @@ function addRadioCheckbox(modal: HTMLElement, id: string, text: string) {
 
 export function showReportModal(lyricsId: number) {
   const app = document.querySelector("ytmusic-app");
-  if (!app || typeof lyricsId !== "number" || modalInitiated) {
+  if (!app || typeof lyricsId !== "number" || document.getElementsByClassName(MODAL_OVERLAY_CLASS).length > 0) {
     return;
   }
-  modalInitiated = true;
 
   const overlay = document.createElement("div");
   overlay.classList.add(MODAL_OVERLAY_CLASS);
@@ -151,7 +147,6 @@ export function showReportModal(lyricsId: number) {
 }
 
 function closeReportModal() {
-  modalInitiated = false;
   selected = null;
   const overlay = document.getElementsByClassName(MODAL_OVERLAY_CLASS)[0];
   if (!overlay) {

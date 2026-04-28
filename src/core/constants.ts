@@ -48,9 +48,9 @@ export const BINIMUM_LYRICS_API_URL = "https://lyrics-api.binimum.org/" as const
 export const DISCORD_INVITE_URL = "https://discord.gg/UsHE3d5fWF" as const;
 export const LRCLIB_API_URL = "https://lrclib.net/api/get" as const;
 export const LEGATO_API_URL = "https://lyrics-api.boidu.dev/kugou/getLyrics" as const;
-export const LRCLIB_UPLOAD_URL = "https://lrclibup.boidu.dev/" as const;
 export const LRCLIB_CLIENT_HEADER = "BetterLyrics Extension (https://github.com/better-lyrics/better-lyrics)" as const;
 export const THEME_STORE_API_URL = "https://better-lyrics-themes-api.boidu.dev" as const;
+export const UNISON_API_BASE_URL = "https://unison.boidu.dev" as const;
 export const THEME_STORE_TURNSTILE_URL = `${THEME_STORE_API_URL}/turnstile` as const;
 const THEME_REGISTRY_BASE = "https://raw.githubusercontent.com/better-lyrics/themes" as const;
 export const THEME_REGISTRY_URL = `${THEME_REGISTRY_BASE}/master` as const;
@@ -103,6 +103,7 @@ export const LOG_PREFIX_CONTENT = "[BetterLyrics:Content]" as const;
 export const LOG_PREFIX_BACKGROUND = "[BetterLyrics:Background]" as const;
 export const LOG_PREFIX_EDITOR = "[BetterLyrics:Editor]" as const;
 export const LOG_PREFIX_STORE = "[BetterLyrics:Store]" as const;
+export const LOG_PREFIX_UNISON = "[BetterLyrics:Unison]" as const;
 
 // Initialization and General Logs
 export const INITIALIZE_LOG =
@@ -129,7 +130,6 @@ export const LYRICS_TAB_NOT_DISABLED_LOG =
   "[BetterLyrics] (Safe to ignore) Lyrics tab is not disabled, unable to enable it" as const;
 export const SONG_SWITCHED_LOG = "[BetterLyrics] Song has been switched" as const;
 export const LOADER_TRANSITION_ENDED = "[BetterLyrics] Loader Transition Ended" as const;
-const LOADER_ANIMATION_END_FAILED = "[BetterLyrics] Loader Animation Didn't End" as const;
 export const PAUSING_LYRICS_SCROLL_LOG = "[BetterLyrics] Pausing Lyrics Autoscroll Due to User Scroll" as const;
 
 // Feature State Logs
