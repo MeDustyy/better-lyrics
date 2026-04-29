@@ -50,6 +50,7 @@ export const BINIMUM_LYRICS_API_URL = "https://lyrics-api.binimum.org/" as const
 export const DISCORD_INVITE_URL = "https://discord.gg/UsHE3d5fWF" as const;
 export const LRCLIB_API_URL = "https://lrclib.net/api/get" as const;
 export const LEGATO_API_URL = "https://lyrics-api.boidu.dev/kugou/getLyrics" as const;
+export const PORTATO_API_URL = "https://lyrics-api.boidu.dev/qq/getLyrics" as const;
 export const LRCLIB_CLIENT_HEADER = "BetterLyrics Extension (https://github.com/better-lyrics/better-lyrics)" as const;
 export const THEME_STORE_API_URL = "https://better-lyrics-themes-api.boidu.dev" as const;
 export const UNISON_API_BASE_URL = "https://unison.boidu.dev" as const;
@@ -367,12 +368,8 @@ interface ProviderConfig {
 }
 
 export const PROVIDER_CONFIGS: ProviderConfig[] = [
-  {
-    key: "bLyrics-richsynced",
-    displayName: "Better Lyrics",
-    syncType: "syllable",
-    priority: 0,
-  },
+  { key: "bLyrics-richsynced", displayName: "Better Lyrics", syncType: "syllable", priority: 0 },
+  { key: "portato-richsynced", displayName: "Better Lyrics Portato", syncType: "word", priority: 1 },
   {
     key: "unison-richsynced",
     displayName: "Unison",

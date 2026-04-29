@@ -4,12 +4,12 @@ import { log } from "@utils";
 import binimum from "./binimum";
 import bLyrics from "./blyrics";
 import cubey, { type CubeyLyricSourceResult } from "./cubey";
-import legato from "./legato";
 import lyricLib from "./lrclib";
 import unison, { type UnisonLyricSourceResult } from "./unison";
 import ytLyrics, { type YTLyricSourceResult } from "./yt";
 import { ytCaptions } from "./ytCaptions";
-
+import legato from "./legato";
+import portato from "./portato";
 /** Current version of the lyrics cache format */
 const LYRIC_CACHE_VERSION = "2.0.0";
 
@@ -162,6 +162,7 @@ const sourceKeyToFillFn = {
   "yt-captions": ytCaptions,
   "yt-lyrics": ytLyrics,
   "legato-synced": legato,
+  "portato-richsynced": portato,
 } as const;
 
 export type LyricSourceKey = Readonly<keyof typeof sourceKeyToFillFn>;
