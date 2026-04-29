@@ -302,6 +302,7 @@ No, Better Lyrics is specifically designed for YouTube Music™. If you want som
 
 - [Spicy Lyrics](https://github.com/Spikerko/spicy-lyrics) - Spotify
 - [Beautiful Lyrics](https://github.com/surfbryce/beautiful-lyrics) - Spotify
+- [YouLy+](https://github.com/ibratabian17/YouLyPlus) - Apple Music, Tidal
 
 ## Funding
 
