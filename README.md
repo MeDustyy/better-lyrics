@@ -300,6 +300,7 @@ Right now, Better Lyrics is available for Chrome, Firefox, and Edge (and other C
 
 No, Better Lyrics is specifically designed for YouTube Music™. If you want something similar for other streaming services, check out these extensions. If you have suggestions for others, open a PR to add them to this list:
 
+- [Spicy Lyrics](https://github.com/Spikerko/spicy-lyrics) - Spotify
 - [Beautiful Lyrics](https://github.com/surfbryce/beautiful-lyrics) - Spotify
 
 ## Funding
