@@ -23,10 +23,12 @@ import {
   TRANSLATED_LYRICS_CLASS,
   UNISON_DOCK_CLASS,
 } from "@constants";
-import { AppState } from "@core/appState";
+import { AppState, reloadLyrics } from "@core/appState";
 import { t } from "@core/i18n";
 import { disconnectResizeObserver } from "@modules/lyrics/injectLyrics";
 import type { ThumbnailElement } from "@modules/lyrics/requestSniffer/NextResponse";
+import { providerPriority } from "@modules/lyrics/providers/shared";
+import { clearCache as clearTranslationCache } from "@modules/lyrics/translation";
 import {
   animEngineState,
   getResumeScrollElement,
@@ -61,6 +63,18 @@ const syncTypeColors: Record<SyncType, string> = {
   word: "#aad1ff",
   line: "#c9f8da",
   unsynced: "rgba(255, 255, 255, 0.7)",
+};
+
+const footerToggleIcons = {
+  translation:
+    '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m476-80 182-480h84L924-80h-84l-43-122H603L560-80h-84ZM160-200l-56-56 202-202q-35-35-63.5-80T190-640h84q20 39 40 68t48 58q33-33 68.5-92.5T484-720H40v-80h280v-80h80v80h280v80H564q-21 72-63 148t-83 116l96 98-30 82-122-125-202 201Zm468-72h144l-72-204-72 204Z"/></svg>',
+  romanization:
+    '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M260.5-468.5Q279-480 279-503t-18.5-35Q242-550 216-550t-44.5 12Q153-526 153-503t18.5 34.5Q190-457 216-457t44.5-11.5ZM75-608v-44h114v-56h52v56h115v44H75Zm141 195q-47 0-80.5-23.5T102-503q0-44 33.5-67t80.5-23q48 0 81.5 23t33.5 67q0 44-33.5 67T216-413Zm-73 161v-140h53v96h264v44H143Zm245-105v-351h51v150h69v44h-68v157h-52Zm314 23q28 0 54.5-13t48.5-37v-106q-23 3-42.5 7t-36.5 9q-45 14-67.5 35T636-390q0 26 18 41t48 15Zm-23 68q-57 0-90-32.5T556-387q0-52 33-85t106-53q23-6 50.5-11t59.5-9q-2-47-22-68.5T721-635q-26 0-51.5 9.5T604-592l-32-56q33-25 77.5-40.5T740-704q71 0 108 44t37 128v257h-67l-6-45q-28 25-61.5 39.5T679-266Z"/></svg>',
+};
+
+const sourceSwitchIcons = {
+  prev: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 19a1 1 0 0 1-.7-.29l-6-6a1 1 0 0 1 0-1.42l6-6a1 1 0 1 1 1.4 1.42L10.91 12l5.29 5.29A1 1 0 0 1 15.5 19Z"/></svg>',
+  next: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 19a1 1 0 0 1-.7-1.71L13.09 12 7.8 6.71A1 1 0 1 1 9.2 5.29l6 6a1 1 0 0 1 0 1.42l-6 6a1 1 0 0 1-.7.29Z"/></svg>',
 };
 
 function parseSvgString(svgString: string): SVGElement | null {
@@ -113,6 +127,139 @@ function createActionButton(options: ActionButtonOptions): HTMLElement {
   container.appendChild(link);
 
   return container;
+}
+
+interface FooterToggleButtonOptions {
+  label: string;
+  enabled: boolean;
+  icon: string;
+  onToggle: (nextValue: boolean) => void;
+}
+
+function updateFooterToggleState(
+  button: HTMLButtonElement,
+  statusEl: HTMLElement,
+  label: string,
+  enabled: boolean
+): void {
+  const statusText = enabled ? t("lyrics_footer_status_on") : t("lyrics_footer_status_off");
+  statusEl.textContent = statusText;
+  button.setAttribute("aria-pressed", String(enabled));
+  button.setAttribute("aria-label", `${label}${statusText}`);
+}
+
+function createFooterToggleButton(options: FooterToggleButtonOptions): HTMLButtonElement {
+  const { label, enabled, icon, onToggle } = options;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `${FOOTER_CLASS}__container ${FOOTER_CLASS}__toggle`;
+
+  const iconWrapper = document.createElement("span");
+  iconWrapper.className = `${FOOTER_CLASS}__toggle-icon`;
+  appendIconTo(iconWrapper, icon);
+
+  const labelEl = document.createElement("span");
+  labelEl.className = `${FOOTER_CLASS}__toggle-label`;
+  labelEl.textContent = label;
+
+  const statusEl = document.createElement("span");
+  statusEl.className = `${FOOTER_CLASS}__toggle-status`;
+
+  button.appendChild(iconWrapper);
+  button.appendChild(labelEl);
+  button.appendChild(statusEl);
+
+  let isEnabled = enabled;
+  updateFooterToggleState(button, statusEl, label, isEnabled);
+
+  button.addEventListener("click", () => {
+    isEnabled = !isEnabled;
+    updateFooterToggleState(button, statusEl, label, isEnabled);
+    onToggle(isEnabled);
+  });
+
+  return button;
+}
+
+function updateTranslationSetting(key: "isTranslateEnabled" | "isRomanizationEnabled", enabled: boolean): void {
+  chrome.storage.sync.set({ [key]: enabled }, () => {
+    if (key === "isTranslateEnabled") {
+      AppState.isTranslateEnabled = enabled;
+    } else {
+      AppState.isRomanizationEnabled = enabled;
+    }
+    clearTranslationCache();
+    reloadLyrics();
+  });
+}
+
+type SourceSwitchDirection = "prev" | "next";
+
+type SourceSwitchAvailability = {
+  prev: boolean;
+  next: boolean;
+};
+
+let sourceAvailabilityOverride: SourceSwitchAvailability | null = null;
+
+function createSourceSwitchButton(direction: SourceSwitchDirection): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `${FOOTER_CLASS}__source-arrow`;
+  button.id = direction === "prev" ? "blyrics-source-prev" : "blyrics-source-next";
+
+  const label = direction === "prev" ? t("lyrics_source_prev") : t("lyrics_source_next");
+  button.title = label;
+  button.setAttribute("aria-label", label);
+
+  appendIconTo(button, sourceSwitchIcons[direction]);
+
+  button.addEventListener("click", e => {
+    e.stopPropagation();
+    document.dispatchEvent(new CustomEvent("blyrics-switch-provider", { detail: { direction } }));
+  });
+
+  return button;
+}
+
+function applySourceSwitchVisibility(providerKey?: string): void {
+  const prevButton = document.getElementById("blyrics-source-prev") as HTMLButtonElement | null;
+  const nextButton = document.getElementById("blyrics-source-next") as HTMLButtonElement | null;
+  if (!prevButton || !nextButton) return;
+
+  if (!providerKey) {
+    prevButton.hidden = true;
+    nextButton.hidden = true;
+    return;
+  }
+
+  const providerIndex = providerPriority.indexOf(providerKey as (typeof providerPriority)[number]);
+  if (providerIndex < 0) {
+    prevButton.hidden = true;
+    nextButton.hidden = true;
+    return;
+  }
+
+  let showPrev = providerIndex > 0;
+  let showNext = providerIndex < providerPriority.length - 1;
+
+  if (sourceAvailabilityOverride) {
+    showPrev = showPrev && sourceAvailabilityOverride.prev;
+    showNext = showNext && sourceAvailabilityOverride.next;
+  }
+
+  prevButton.hidden = !showPrev;
+  nextButton.hidden = !showNext;
+}
+
+function updateSourceSwitchControls(providerKey?: string): void {
+  sourceAvailabilityOverride = null;
+  applySourceSwitchVisibility(providerKey);
+}
+
+export function setSourceSwitchAvailability(prevAvailable: boolean, nextAvailable: boolean): void {
+  sourceAvailabilityOverride = { prev: prevAvailable, next: nextAvailable };
+  applySourceSwitchVisibility(AppState.currentProviderKey ?? undefined);
 }
 
 let lyricsObserver: MutationObserver | null = null;
@@ -222,16 +369,14 @@ export function addFooter(
 
   const info = providerKey ? providerDisplayInfo[providerKey] : null;
 
-  footerLink.textContent = "";
   footerLink.href = sourceHref;
+
+  footerLink.replaceChildren();
 
   if (info) {
     footerLink.appendChild(document.createTextNode(info.name));
     const iconWrapper = document.createElement("span");
-    iconWrapper.style.opacity = "0.5";
-    iconWrapper.style.marginLeft = "6px";
-    iconWrapper.style.display = "inline-flex";
-    iconWrapper.style.verticalAlign = "middle";
+    iconWrapper.className = `${FOOTER_CLASS}__source-sync`;
     iconWrapper.style.color = syncTypeColors[info.syncType];
     const svgIcon = parseSvgString(syncTypeIcons[info.syncType]);
     if (svgIcon) {
@@ -239,8 +384,10 @@ export function addFooter(
     }
     footerLink.appendChild(iconWrapper);
   } else {
-    footerLink.textContent = source || "boidu.dev";
+    footerLink.appendChild(document.createTextNode(source || "boidu.dev"));
   }
+
+  updateSourceSwitchControls(providerKey);
 
   if (source === "Unison" && unisonData) {
     AppState.currentUnisonData = unisonData;
@@ -533,7 +680,7 @@ function createFooter(song: string, artist: string, album: string, duration: num
     footer.replaceChildren();
 
     const footerContainer = document.createElement("div");
-    footerContainer.className = `${FOOTER_CLASS}__container`;
+    footerContainer.className = `${FOOTER_CLASS}__container ${FOOTER_CLASS}__source`;
 
     const footerImage = document.createElement("img");
     footerImage.src = "https://better-lyrics.boidu.dev/icon-512.png";
@@ -547,8 +694,14 @@ function createFooter(song: string, artist: string, album: string, duration: num
     const footerLink = document.createElement("a");
     footerLink.target = "_blank";
     footerLink.id = "betterLyricsFooterLink";
+    footerLink.className = `${FOOTER_CLASS}__source-link`;
 
+    const prevSourceButton = createSourceSwitchButton("prev");
+    const nextSourceButton = createSourceSwitchButton("next");
+
+    footerContainer.appendChild(prevSourceButton);
     footerContainer.appendChild(footerLink);
+    footerContainer.appendChild(nextSourceButton);
 
     const discordImage = document.createElement("img");
     discordImage.src = DISCORD_LOGO_SRC;
@@ -572,7 +725,23 @@ function createFooter(song: string, artist: string, album: string, duration: num
       logoAlt: "Genius",
     });
 
+    const translationToggle = createFooterToggleButton({
+      label: t("lyrics_footer_translation"),
+      enabled: AppState.isTranslateEnabled,
+      icon: footerToggleIcons.translation,
+      onToggle: nextValue => updateTranslationSetting("isTranslateEnabled", nextValue),
+    });
+
+    const romanizationToggle = createFooterToggleButton({
+      label: t("lyrics_footer_romanization"),
+      enabled: AppState.isRomanizationEnabled,
+      icon: footerToggleIcons.romanization,
+      onToggle: nextValue => updateTranslationSetting("isRomanizationEnabled", nextValue),
+    });
+
     footer.appendChild(footerContainer);
+    footer.appendChild(translationToggle);
+    footer.appendChild(romanizationToggle);
     footer.appendChild(geniusContainer);
     if (videoId) {
       footer.appendChild(

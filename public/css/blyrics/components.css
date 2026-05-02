@@ -543,13 +543,94 @@
 	text-underline-offset: 2px;
 }
 
-.blyrics-footer__container:hover > a {
+.blyrics-footer__container:not(.blyrics-footer__source):hover > a {
 	text-decoration: underline;
 }
 
 .blyrics-footer__container > img {
 	margin-left: -6px;
 	margin-right: 0.75rem;
+}
+
+
+
+.blyrics-footer__source-arrow {
+	appearance: none;
+	background-color: var(--blyrics-footer-bg-color);
+	border: 1px solid var(--blyrics-footer-border-color);
+	color: var(--blyrics-footer-link-color);
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	margin-inline: 0.25rem;
+	box-sizing: border-box;
+	border-radius: var(--blyrics-small-border-radius);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	flex-shrink: 0;
+}
+
+.blyrics-footer__source-arrow#blyrics-source-next {
+	margin-right: 0;
+}
+
+.blyrics-footer__source-arrow:hover {
+	background-color: var(--blyrics-vote-hover-color);
+}
+
+.blyrics-footer__source-arrow svg {
+	width: 12px;
+	height: 12px;
+}
+
+.blyrics-footer__source-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.blyrics-footer__source-link:hover {
+	text-decoration: underline;
+}
+
+.blyrics-footer__source-sync {
+	display: inline-flex;
+	opacity: 0.6;
+}
+
+.blyrics-footer__toggle {
+	appearance: none;
+	background-color: var(--blyrics-footer-bg-color);
+	border: 1px solid var(--blyrics-footer-border-color);
+	cursor: pointer;
+	gap: 0.5rem;
+}
+
+.blyrics-footer__toggle:hover {
+	background-color: var(--blyrics-vote-hover-color);
+}
+
+.blyrics-footer__toggle-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+}
+
+.blyrics-footer__toggle-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.blyrics-footer__toggle-label {
+	color: var(--blyrics-footer-text-color);
+}
+
+.blyrics-footer__toggle-status {
+	color: var(--blyrics-footer-link-color);
 }
 
 .autoscroll-resume-wrapper {

@@ -810,6 +810,30 @@
     "message": "Source: ",
     "description": "Lyrics source label"
   },
+  "lyrics_source_prev": {
+    "message": "Previous source",
+    "description": "Footer source switch: previous provider"
+  },
+  "lyrics_source_next": {
+    "message": "Next source",
+    "description": "Footer source switch: next provider"
+  },
+  "lyrics_footer_translation": {
+    "message": "Translation:",
+    "description": "Footer translation toggle label"
+  },
+  "lyrics_footer_romanization": {
+    "message": "Romanization:",
+    "description": "Footer romanization toggle label"
+  },
+  "lyrics_footer_status_on": {
+    "message": "On",
+    "description": "Footer toggle status when enabled"
+  },
+  "lyrics_footer_status_off": {
+    "message": "Off",
+    "description": "Footer toggle status when disabled"
+  },
   "lyrics_searchOnGenius": {
     "message": "Search on Genius",
     "description": "Search on Genius button text"

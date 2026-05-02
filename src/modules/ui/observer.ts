@@ -14,7 +14,7 @@ import {
   USER_SCROLLING_CLASS,
 } from "@constants";
 import { AppState, handleModifications, type PlayerDetails, reloadLyrics } from "@core/appState";
-import { preFetchLyrics } from "@modules/lyrics/lyrics";
+import { preFetchLyrics, switchLyricsProvider } from "@modules/lyrics/lyrics";
 import { getSongMetadata } from "@modules/lyrics/requestSniffer/requestSniffer";
 import { onAutoSwitchEnabled, onFullScreenDisabled } from "@modules/settings/settings";
 import {
@@ -54,7 +54,23 @@ let hasInitializedLyricReloader = false;
 let hasInitializedHomepageFullscreen = false;
 let hasInitializedAltHover = false;
 let hasInitializedLyrics = false;
+let hasInitializedSourceSwitchListener = false;
 let metadataAbortController: AbortController | null = null;
+
+type SourceSwitchDirection = "prev" | "next";
+
+function initSourceSwitchListener(): void {
+  if (hasInitializedSourceSwitchListener) {
+    return;
+  }
+  hasInitializedSourceSwitchListener = true;
+
+  document.addEventListener("blyrics-switch-provider", event => {
+    const { detail } = event as CustomEvent<{ direction?: SourceSwitchDirection }>;
+    if (!detail?.direction) return;
+    switchLyricsProvider(detail.direction);
+  });
+}
 
 async function requestWakeLock(): Promise<void> {
   if (!("wakeLock" in navigator)) {
@@ -267,6 +283,8 @@ export function initializeLyrics(): void {
     return;
   }
   hasInitializedLyrics = true;
+
+  initSourceSwitchListener();
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {

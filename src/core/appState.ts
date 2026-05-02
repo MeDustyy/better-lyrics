@@ -47,6 +47,8 @@ interface AppStateType {
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
   currentUnisonData: UnisonData | null;
+  currentProviderKey: string | null;
+  providerPrioritySnapshot: string[];
 }
 
 export const AppState: AppStateType = {
@@ -76,6 +78,8 @@ export const AppState: AppStateType = {
   unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
   isUnisonAutoHideInFullscreenEnabled: true,
   currentUnisonData: null,
+  currentProviderKey: null,
+  providerPrioritySnapshot: [],
 };
 
 export function reloadLyrics(): void {
