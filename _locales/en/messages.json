@@ -98,6 +98,10 @@
     "message": "Unison Actions",
     "description": "Display-section row label for the Unison Actions modal trigger"
   },
+  "options_display_actionsBar": {
+    "message": "Actions Bar",
+    "description": "Display-section row label for the Actions Bar settings"
+  },
   "options_unisonModal_title": {
     "message": "Unison Actions",
     "description": "Title of the Unison Actions modal"
@@ -145,6 +149,30 @@
   "options_unisonModal_position_bottomRight": {
     "message": "Bottom right",
     "description": "Tooltip for the bottom-right cell in the Unison position picker"
+  },
+  "options_actionsBarModal_title": {
+    "message": "Actions Bar",
+    "description": "Title of the Actions Bar modal"
+  },
+  "options_actionsBarModal_position": {
+    "message": "Placement",
+    "description": "Label above the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_staticTop": {
+    "message": "Static top",
+    "description": "Tooltip for the static top cell in the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_floatingTop": {
+    "message": "Floating top",
+    "description": "Tooltip for the floating top cell in the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_staticBottom": {
+    "message": "Static bottom",
+    "description": "Tooltip for the static bottom cell in the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_floatingBottom": {
+    "message": "Floating bottom",
+    "description": "Tooltip for the floating bottom cell in the Actions Bar placement picker"
   },
 
   "options_language_displayLanguage": {

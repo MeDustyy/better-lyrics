@@ -65,6 +65,12 @@ ytmusic-app[blyrics-stylized] #player-bar-background {
   scrollbar-color: transparent transparent;
 }
 
+#tab-renderer[page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]:has(.blyrics-footer[data-placement="static-top"]),
+#tab-renderer[page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]:has(.blyrics-footer[data-placement="floating-top"]) {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
 yt-formatted-string.text.style-scope.ytmusic-message-renderer {
   margin-top: 34px !important;
 }
@@ -101,7 +107,8 @@ ytmusic-message-renderer.ytmusic-tab-renderer {
 #tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) #blyrics-loader,
 #tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) #blyrics-wrapper,
 #tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) #blyrics-ad-overlay,
-#tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) .blyrics-footer{
+#tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) .blyrics-footer,
+#tab-renderer:not([page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]) .blyrics-footer__unison{
   display: none !important;
 }
 

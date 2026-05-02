@@ -1,4 +1,4 @@
-import { GENERAL_ERROR_LOG, UNISON_DOCK_DEFAULT_POSITION } from "@constants";
+import { ACTIONS_BAR_DEFAULT_PLACEMENT, GENERAL_ERROR_LOG, UNISON_DOCK_DEFAULT_POSITION } from "@constants";
 import type { LyricsData } from "@modules/lyrics/injectLyrics";
 import { createLyrics } from "@modules/lyrics/lyrics";
 import type { UnisonData } from "@modules/lyrics/providers/unison";
@@ -46,6 +46,7 @@ interface AppStateType {
   isUnisonPinnedDockEnabled: boolean;
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
+  actionsBarPlacement: string;
   currentUnisonData: UnisonData | null;
   currentProviderKey: string | null;
   providerPrioritySnapshot: string[];
@@ -77,6 +78,7 @@ export const AppState: AppStateType = {
   isUnisonPinnedDockEnabled: true,
   unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
   isUnisonAutoHideInFullscreenEnabled: true,
+  actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
   currentUnisonData: null,
   currentProviderKey: null,
   providerPrioritySnapshot: [],

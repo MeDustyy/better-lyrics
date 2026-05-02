@@ -206,7 +206,7 @@ ytmusic-app-layout[player-fullscreened]:not([blyrics-dfs]) > [slot="player-bar"]
 
 /* Top-anchored Unison dock: tab header is hidden in fullscreen, so no 48px buffer needed */
 #layout[player-fullscreened]:not([blyrics-dfs]) .blyrics-unison-dock[data-position^="top-"] {
-  top: 16px;
+  top: calc(16px + var(--blyrics-actions-bar-dock-offset-top, 0px));
 }
 
 /* Shift bottom-anchored Unison dock above the player bar when it shows in fullscreen */

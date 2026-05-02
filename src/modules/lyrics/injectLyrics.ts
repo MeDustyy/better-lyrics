@@ -41,6 +41,7 @@ import {
   cleanup,
   createLyricsWrapper,
   flushLoader,
+  getLyricsContentContainer,
   renderLoader,
   setExtraHeight,
 } from "@modules/ui/dom";
@@ -373,12 +374,13 @@ function injectLyrics(data: LyricSourceResultWithMeta, keepLoaderVisible = false
   const lyrics = data.lyrics!;
   cleanup();
 
-  let lyricsWrapper = createLyricsWrapper();
-
-  lyricsWrapper.replaceChildren();
+  const lyricsWrapper = createLyricsWrapper();
+  const lyricsContent = getLyricsContentContainer(lyricsWrapper);
+  if (!lyricsContent) return;
+  lyricsContent.replaceChildren();
   const lyricsContainer = document.createElement("div");
   lyricsContainer.className = LYRICS_CLASS;
-  lyricsWrapper.appendChild(lyricsContainer);
+  lyricsContent.appendChild(lyricsContainer);
 
   lyricsWrapper.removeAttribute("is-empty");
 

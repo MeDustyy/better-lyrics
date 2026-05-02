@@ -39,6 +39,7 @@ import {
   renderLoader,
   resetThumbnailState,
   showYtThumbnail,
+  updateResumeButtonOffset,
 } from "./dom";
 
 let wakeLock: WakeLockSentinel | null = null;
@@ -422,6 +423,7 @@ export function scrollEventHandler(): void {
     animEngineState.wasUserScrolling = true;
 
     getResumeScrollElement().removeAttribute("autoscroll-hidden");
+    updateResumeButtonOffset();
     const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0] as HTMLElement;
     lyricsElement.classList.add(USER_SCROLLING_CLASS);
   }

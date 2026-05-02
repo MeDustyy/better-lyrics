@@ -50,7 +50,7 @@
 /* Fullscreen autoscroll button fix */
 ytmusic-app-layout[player-fullscreened]:not([blyrics-dfs]) .autoscroll-resume-wrapper {
 	position: fixed;
-	top: 1rem;
+	top: calc(1rem + var(--blyrics-actions-bar-resume-offset, 0px));
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 1000;
@@ -60,9 +60,9 @@ ytmusic-app-layout[player-fullscreened]:not([blyrics-dfs]) .autoscroll-resume-wr
 ytmusic-app-layout[player-fullscreened]:not([blyrics-dfs]) .autoscroll-resume-button {
 	position: relative;
 	left: unset;
-	transform: none;
+	transform: translateY(var(--blyrics-actions-bar-resume-offset, 0px));
 }
 
 ytmusic-app-layout[player-fullscreened]:not([blyrics-dfs]) .autoscroll-resume-button[autoscroll-hidden="true"] {
-	transform: translateY(-3rem);
+	transform: translateY(calc(-3rem + var(--blyrics-actions-bar-resume-offset, 0px)));
 }

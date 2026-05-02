@@ -1,10 +1,22 @@
-import { LOG_PREFIX_CONTENT, LYRICS_DISABLED_ATTR, UNISON_DOCK_CLASS, UNISON_DOCK_DEFAULT_POSITION } from "@constants";
+import {
+  ACTIONS_BAR_DEFAULT_PLACEMENT,
+  LOG_PREFIX_CONTENT,
+  LYRICS_DISABLED_ATTR,
+  UNISON_DOCK_CLASS,
+  UNISON_DOCK_DEFAULT_POSITION,
+} from "@constants";
 import { AppState, reloadLyrics } from "@core/appState";
 import { clearCache, compileRicsToStyles, getStorage } from "@core/storage";
 import { log, setUpLog } from "@core/utils";
 import { calculateLyricPositions } from "@modules/lyrics/injectLyrics";
 import { clearCache as clearTranslationCache } from "@modules/lyrics/translation";
-import { mountUnisonDock, reloadAlbumArt, unmountUnisonDock, updateUnisonDockPosition } from "@modules/ui/dom";
+import {
+  applyActionsBarPlacement,
+  mountUnisonDock,
+  reloadAlbumArt,
+  unmountUnisonDock,
+  updateUnisonDockPosition,
+} from "@modules/ui/dom";
 import { applyCustomStyles, getAndApplyCustomStyles } from "@modules/ui/styleInjector";
 
 let hasInitializedMessageListener = false;
@@ -197,6 +209,9 @@ export function listenForPopupMessages(): void {
         syncUnisonDock();
         hideDockOnIdleInFullscreen();
       });
+      loadActionsBarSettings(() => {
+        applyActionsBarPlacement(AppState.actionsBarPlacement);
+      });
       AppState.shouldInjectAlbumArt = "Unknown";
       onAlbumArtEnabled(
         () => {
@@ -242,6 +257,13 @@ export function loadUnisonPinnedDockSettings(callback?: () => void): void {
       callback?.();
     }
   );
+}
+
+export function loadActionsBarSettings(callback?: () => void): void {
+  getStorage({ actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT }, items => {
+    AppState.actionsBarPlacement = items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT;
+    callback?.();
+  });
 }
 
 function syncUnisonDock(): void {

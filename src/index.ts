@@ -9,6 +9,7 @@ import {
   hideCursorOnIdle,
   hideDockOnIdleInFullscreen,
   listenForPopupMessages,
+  loadActionsBarSettings,
   loadPassiveScrollSetting,
   loadTranslationSettings,
   loadUnisonPinnedDockSettings,
@@ -48,6 +49,7 @@ async function modify(): Promise<void> {
   loadTranslationSettings();
   loadPassiveScrollSetting();
   loadUnisonPinnedDockSettings(hideDockOnIdleInFullscreen);
+  loadActionsBarSettings();
   subscribeToCustomStyles();
   await purgeExpiredKeys();
   await saveCacheInfo();

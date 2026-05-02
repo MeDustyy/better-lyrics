@@ -13,7 +13,7 @@
 
   ytmusic-player-page:not([is-mweb-modernization-enabled])[player-fullscreened]:not([blyrics-dfs]) 
   .blyrics-container {
-    padding-top: var(--blyrics-padding-top);
+    padding-top: calc(var(--blyrics-padding-top) + var(--blyrics-actions-bar-space-top, 0px));
   }
 
   /* Normal panel sizes */

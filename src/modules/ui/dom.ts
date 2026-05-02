@@ -1,5 +1,6 @@
 import {
   AD_PLAYING_ATTR,
+  ACTIONS_BAR_DEFAULT_PLACEMENT,
   DISCORD_INVITE_URL,
   DISCORD_LOGO_SRC,
   FONT_LINK,
@@ -10,6 +11,7 @@ import {
   LOADER_TRANSITION_ENDED,
   LYRICS_AD_OVERLAY_ID,
   LYRICS_CLASS,
+  LYRICS_CONTENT_ID,
   LYRICS_LOADER_ID,
   LYRICS_WRAPPER_CREATED_LOG,
   LYRICS_WRAPPER_ID,
@@ -50,6 +52,134 @@ const voteIcons = {
 };
 
 const VOTE_ACTIVE_CLASS = `${FOOTER_CLASS}__vote--active`;
+
+type ActionsBarPlacement = "static-bottom" | "static-top" | "floating-bottom" | "floating-top";
+
+const ACTIONS_BAR_PLACEMENTS: ActionsBarPlacement[] = [
+  "static-bottom",
+  "static-top",
+  "floating-bottom",
+  "floating-top",
+];
+
+const ACTIONS_BAR_EDGE_GAP = 12;
+
+const ACTIONS_BAR_SPACE_TOP_VAR = "--blyrics-actions-bar-space-top";
+const ACTIONS_BAR_SPACE_BOTTOM_VAR = "--blyrics-actions-bar-space-bottom";
+const ACTIONS_BAR_DOCK_OFFSET_TOP_VAR = "--blyrics-actions-bar-dock-offset-top";
+const ACTIONS_BAR_DOCK_OFFSET_BOTTOM_VAR = "--blyrics-actions-bar-dock-offset-bottom";
+const ACTIONS_BAR_EDGE_GAP_VAR = "--blyrics-actions-bar-edge-gap";
+const ACTIONS_BAR_LOADER_OFFSET_VAR = "--blyrics-actions-bar-loader-offset";
+const ACTIONS_BAR_RESUME_OFFSET_VAR = "--blyrics-actions-bar-resume-offset";
+
+function normalizeActionsBarPlacement(value?: string): ActionsBarPlacement {
+  if (ACTIONS_BAR_PLACEMENTS.includes(value as ActionsBarPlacement)) {
+    return value as ActionsBarPlacement;
+  }
+  return ACTIONS_BAR_DEFAULT_PLACEMENT;
+}
+
+function updateActionsBarLayoutVars(footer?: HTMLElement, placement?: ActionsBarPlacement): void {
+  const root = document.documentElement;
+  root.style.setProperty(ACTIONS_BAR_EDGE_GAP_VAR, `${ACTIONS_BAR_EDGE_GAP}px`);
+
+  const resolvedFooter = footer ?? (document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined);
+  if (!resolvedFooter) {
+    root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_BOTTOM_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_LOADER_OFFSET_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, "0px");
+    return;
+  }
+
+  const resolvedPlacement = placement ?? normalizeActionsBarPlacement(resolvedFooter.dataset.placement);
+  const barHeight = Math.max(resolvedFooter.getBoundingClientRect().height, resolvedFooter.scrollHeight);
+  const offset = Math.max(0, barHeight) + ACTIONS_BAR_EDGE_GAP;
+  const loaderOffset = resolvedPlacement.endsWith("top") ? `${offset}px` : "0px";
+  root.style.setProperty(ACTIONS_BAR_LOADER_OFFSET_VAR, loaderOffset);
+
+  if (!resolvedPlacement.startsWith("floating")) {
+    root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_BOTTOM_VAR, "0px");
+    return;
+  }
+
+  if (resolvedPlacement.endsWith("top")) {
+    root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, `${offset}px`);
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_BOTTOM_VAR, "0px");
+  } else {
+    root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, "0px");
+    root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_BOTTOM_VAR, `${offset}px`);
+  }
+}
+
+export function applyActionsBarPlacement(placement: string): void {
+  const footer = document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined;
+  if (!footer) {
+    updateActionsBarLayoutVars();
+    return;
+  }
+
+  const resolvedPlacement = normalizeActionsBarPlacement(placement);
+  footer.dataset.placement = resolvedPlacement;
+
+  const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0] as HTMLElement | undefined;
+  const wrapper = document.getElementById(LYRICS_WRAPPER_ID) as HTMLElement | null;
+  const content = getLyricsContentContainer(wrapper) ?? undefined;
+
+  if (resolvedPlacement === "static-bottom" && lyricsElement) {
+    lyricsElement.appendChild(footer);
+  } else if (wrapper) {
+    if (resolvedPlacement.endsWith("top") && content && wrapper.contains(content)) {
+      wrapper.insertBefore(footer, content);
+    } else {
+      wrapper.appendChild(footer);
+    }
+  } else if (lyricsElement) {
+    lyricsElement.appendChild(footer);
+  }
+
+  updateActionsBarLayoutVars(footer, resolvedPlacement);
+  updateResumeButtonOffset();
+  setExtraHeight();
+}
+
+export function updateResumeButtonOffset(): void {
+  const root = document.documentElement;
+  const placement = normalizeActionsBarPlacement(AppState.actionsBarPlacement);
+  if (!placement.endsWith("top")) {
+    root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, "0px");
+    return;
+  }
+
+  const footer = document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined;
+  const tabRenderer = document.querySelector(TAB_RENDERER_SELECTOR) as HTMLElement | null;
+  if (!footer || !tabRenderer) {
+    root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, "0px");
+    return;
+  }
+
+  const barHeight = Math.max(footer.getBoundingClientRect().height, footer.scrollHeight);
+  const offset = Math.max(0, barHeight) + ACTIONS_BAR_EDGE_GAP;
+
+  if (placement === "floating-top") {
+    root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, `${offset}px`);
+    return;
+  }
+
+  const footerRect = footer.getBoundingClientRect();
+  const containerRect = tabRenderer.getBoundingClientRect();
+  const isVisible = footerRect.bottom > containerRect.top && footerRect.top < containerRect.bottom;
+  root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, isVisible ? `${offset}px` : "0px");
+}
 
 const syncTypeIcons: Record<SyncType, string> = {
   syllable: `<svg width="14" height="14" viewBox="0 0 1024 1024" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="636" y="239" width="389.981" height="233.271" rx="48" fill-opacity="0.5"/><path d="M0 335C0 289.745 0 267.118 14.0589 253.059C28.1177 239 50.7452 239 96 239H213C243.17 239 258.255 239 267.627 248.373C277 257.745 277 272.83 277 303V408C277 438.17 277 453.255 267.627 462.627C258.255 472 243.17 472 213 472H96C50.7452 472 28.1177 472 14.0589 457.941C0 443.882 0 421.255 0 376V335Z"/><path d="M337 304C337 273.83 337 258.745 346.373 249.373C355.745 240 370.83 240 401 240H460C505.255 240 527.882 240 541.941 254.059C556 268.118 556 290.745 556 336V377C556 422.255 556 444.882 541.941 458.941C527.882 473 505.255 473 460 473H401C370.83 473 355.745 473 346.373 463.627C337 454.255 337 439.17 337 409V304Z" fill-opacity="0.5"/><rect y="552.271" width="1024" height="233" rx="48" fill-opacity="0.5"/></svg>`,
@@ -264,6 +394,22 @@ export function setSourceSwitchAvailability(prevAvailable: boolean, nextAvailabl
 
 let lyricsObserver: MutationObserver | null = null;
 let adStateObserver: MutationObserver | null = null;
+
+function ensureLyricsContentContainer(wrapper: HTMLElement): HTMLElement {
+  let content = wrapper.querySelector<HTMLElement>(`#${LYRICS_CONTENT_ID}`);
+  if (!content) {
+    content = document.createElement("div");
+    content.id = LYRICS_CONTENT_ID;
+    wrapper.appendChild(content);
+  }
+  return content;
+}
+
+export function getLyricsContentContainer(wrapper?: HTMLElement | null): HTMLElement | null {
+  const root = wrapper ?? (document.getElementById(LYRICS_WRAPPER_ID) as HTMLElement | null);
+  if (!root) return null;
+  return ensureLyricsContentContainer(root);
+}
 /**
  * Creates or reuses the lyrics wrapper element and sets up scroll event handling.
  *
@@ -281,12 +427,14 @@ export function createLyricsWrapper(): HTMLElement {
     existingWrapper.replaceChildren();
     existingWrapper.style.top = "";
     existingWrapper.style.transition = "";
+    ensureLyricsContentContainer(existingWrapper);
     return existingWrapper;
   }
 
   const wrapper = document.createElement("div");
   wrapper.id = LYRICS_WRAPPER_ID;
   tabRenderer.appendChild(wrapper);
+  ensureLyricsContentContainer(wrapper);
 
   wrapper.addEventListener("copy", (e: ClipboardEvent) => {
     const selection = window.getSelection();
@@ -354,15 +502,18 @@ export function addFooter(
   videoId?: string,
   unisonData?: UnisonData
 ): void {
-  if (document.getElementsByClassName(FOOTER_CLASS).length !== 0) {
-    document.getElementsByClassName(FOOTER_CLASS)[0].remove();
+  const existingFooter = document.getElementsByClassName(FOOTER_CLASS)[0];
+  if (existingFooter) {
+    existingFooter.remove();
   }
+  document.querySelectorAll(`.${FOOTER_CLASS}__unison`).forEach(node => node.remove());
 
-  const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0];
+  const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0] as HTMLElement;
   const footer = document.createElement("div");
   footer.classList.add(FOOTER_CLASS);
   lyricsElement.appendChild(footer);
   createFooter(song, artist, album, duration, videoId);
+  applyActionsBarPlacement(AppState.actionsBarPlacement);
 
   const footerLink = document.getElementById("betterLyricsFooterLink") as HTMLAnchorElement;
   sourceHref = sourceHref || "https://better-lyrics.boidu.dev/";
@@ -391,7 +542,7 @@ export function addFooter(
 
   if (source === "Unison" && unisonData) {
     AppState.currentUnisonData = unisonData;
-    footer.appendChild(createUnisonFooterCard(unisonData));
+    lyricsElement.appendChild(createUnisonFooterCard(unisonData));
     if (AppState.isUnisonPinnedDockEnabled) {
       mountUnisonDock(unisonData, AppState.unisonPinnedDockPosition);
     }
@@ -1261,12 +1412,13 @@ function getGeniusLink(song: string, artist: string): string {
 
 export function setExtraHeight() {
   const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0] as HTMLElement;
+  updateActionsBarLayoutVars();
   const lyricsHeight = lyricsElement.getBoundingClientRect().height;
   const tabRenderer = document.querySelector(TAB_RENDERER_SELECTOR) as HTMLElement;
   const tabRendererHeight = tabRenderer.getBoundingClientRect().height;
   const scrollPosOffsetRatio = SCROLL_POS_OFFSET_RATIO.getNumberValue();
 
-  const firstLyric = document.querySelector("#blyrics-wrapper > div > div:nth-child(1)");
+  const firstLyric = lyricsElement.querySelector(".blyrics--line");
 
   const paddingTop = Math.max(
     0,
@@ -1275,12 +1427,14 @@ export function setExtraHeight() {
 
   document.documentElement.style.setProperty("--blyrics-padding-top", paddingTop + "px");
 
-  const footer = document.querySelector("#blyrics-wrapper > div > div.blyrics-footer");
+  const footer = document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined;
   const lastLyric = document.querySelector(".blyrics--line:not(:has(~ .blyrics--line))");
+  const placement = normalizeActionsBarPlacement(footer?.dataset.placement);
+  const footerHeight = placement === "static-bottom" ? footer?.getBoundingClientRect().height || 0 : 0;
 
   let extraHeight = Math.max(
     tabRendererHeight * (1 - scrollPosOffsetRatio) -
-      (footer?.getBoundingClientRect().height || 0) -
+      footerHeight -
       (lastLyric?.getBoundingClientRect().height || 0) / 2,
     tabRendererHeight - lyricsHeight
   );

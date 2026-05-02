@@ -1,6 +1,11 @@
 // Function to save user options
 
-import { LOG_PREFIX, ROMANIZATION_LANGUAGES, UNISON_DOCK_DEFAULT_POSITION } from "@constants";
+import {
+  ACTIONS_BAR_DEFAULT_PLACEMENT,
+  LOG_PREFIX,
+  ROMANIZATION_LANGUAGES,
+  UNISON_DOCK_DEFAULT_POSITION,
+} from "@constants";
 import { getLanguageDisplayName, initI18n, loadLocaleOverride, SUPPORTED_LOCALES, t } from "@core/i18n";
 import { exportIdentity, getIdentity, importIdentity, type KeyIdentity } from "@core/keyIdentity";
 import Sortable from "sortablejs";
@@ -25,6 +30,7 @@ interface Options {
   isUnisonPinnedDockEnabled: boolean;
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
+  actionsBarPlacement: string;
 }
 
 const saveOptions = (): void => {
@@ -64,12 +70,20 @@ const getOptionsFromForm = (): Options => {
     isUnisonAutoHideInFullscreenEnabled: (
       document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement
     ).checked,
+    actionsBarPlacement: getSelectedActionsBarPlacement(),
   };
 };
 
 function getSelectedUnisonPosition(): string {
   const selected = document.querySelector<HTMLElement>("#unison-position-frame .position-cell[data-selected='true']");
   return selected?.dataset.pos ?? UNISON_DOCK_DEFAULT_POSITION;
+}
+
+function getSelectedActionsBarPlacement(): string {
+  const selected = document.querySelector<HTMLElement>(
+    "#actions-bar-position-frame .position-cell[data-selected='true']"
+  );
+  return selected?.dataset.placement ?? ACTIONS_BAR_DEFAULT_PLACEMENT;
 }
 
 // Function to save options to Chrome storage
@@ -228,12 +242,14 @@ const restoreOptions = (): void => {
     isUnisonPinnedDockEnabled: true,
     unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
     isUnisonAutoHideInFullscreenEnabled: true,
+    actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
   };
 
   chrome.storage.sync.get(defaultOptions, setOptionsInForm);
 
   document.getElementById("clear-cache")!.addEventListener("click", () => clearTransientLyrics());
   setupUnisonActionsModal();
+  setupActionsBarModal();
 };
 
 // Function to set options in form elements
@@ -254,6 +270,7 @@ const setOptionsInForm = (items: Options): void => {
   (document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement).checked =
     items.isUnisonAutoHideInFullscreenEnabled;
   setUnisonPositionInForm(items.unisonPinnedDockPosition);
+  setActionsBarPlacementInForm(items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT);
   syncUnisonModalDependentState(items.isUnisonPinnedDockEnabled);
   romanizationDisabledLanguages = items.romanizationDisabledLanguages || [];
   translationDisabledLanguages = items.translationDisabledLanguages || [];
@@ -938,6 +955,18 @@ function setUnisonPositionInForm(position: string): void {
   });
 }
 
+function setActionsBarPlacementInForm(placement: string): void {
+  const frame = document.getElementById("actions-bar-position-frame");
+  if (!frame) return;
+  frame.querySelectorAll<HTMLElement>(".position-cell").forEach(cell => {
+    if (cell.dataset.placement === placement) {
+      cell.dataset.selected = "true";
+    } else {
+      delete cell.dataset.selected;
+    }
+  });
+}
+
 function syncUnisonModalDependentState(enabled: boolean): void {
   const body = document.getElementById("unison-actions-modal-body");
   if (!body) return;
@@ -980,4 +1009,33 @@ function setupUnisonActionsModal(): void {
   });
 
   autoHideToggle.addEventListener("change", saveOptions);
+}
+
+function setupActionsBarModal(): void {
+  const openBtn = document.getElementById("actions-bar-btn");
+  const overlay = document.getElementById("actions-bar-modal-overlay");
+  const closeBtn = document.getElementById("actions-bar-modal-close");
+  const frame = document.getElementById("actions-bar-position-frame");
+
+  if (!openBtn || !overlay || !closeBtn || !frame) return;
+
+  const closeModal = (): void => overlay.classList.remove("active");
+
+  openBtn.addEventListener("click", () => overlay.classList.add("active"));
+  closeBtn.addEventListener("click", closeModal);
+
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay) closeModal();
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && overlay.classList.contains("active")) closeModal();
+  });
+
+  frame.addEventListener("click", e => {
+    const cell = (e.target as HTMLElement).closest<HTMLElement>(".position-cell");
+    if (!cell?.dataset.placement) return;
+    setActionsBarPlacementInForm(cell.dataset.placement);
+    saveOptions();
+  });
 }
