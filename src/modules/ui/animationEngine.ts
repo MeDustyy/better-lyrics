@@ -11,6 +11,7 @@ import {
   USER_SCROLLING_CLASS,
 } from "@constants";
 import { AppState } from "@core/appState";
+import { t } from "@core/i18n";
 import { calculateLyricPositions, type LineData } from "@modules/lyrics/injectLyrics";
 import { registerThemeSetting } from "@modules/settings/themeOptions";
 import { hideAdOverlay, isAdPlaying, isLoaderActive, showAdOverlay } from "@modules/ui/dom";
@@ -47,6 +48,9 @@ interface AnimEngineState {
   wasUserScrolling: boolean;
   lastTime: number;
   lastPlayState: boolean;
+  /**
+   * Take "-1" to mean that we have no sensible last event
+   */
   lastEventCreationTime: number;
   lastActiveElements: LineData[];
   queuedScroll: boolean;
@@ -73,7 +77,7 @@ export let animEngineState: AnimEngineState = {
   wasUserScrolling: false,
   lastTime: 0,
   lastPlayState: false,
-  lastEventCreationTime: 0,
+  lastEventCreationTime: -1,
   doneFirstInstantScroll: true,
   lastActiveElements: [],
   queuedScroll: false,
@@ -316,7 +320,7 @@ export function animationEngine(currentTime: number, eventCreationTime: number, 
   animEngineState.lastEventCreationTime = eventCreationTime;
 
   let timeOffset = now - eventCreationTime;
-  if (!isPlaying) {
+  if (!isPlaying || eventCreationTime === -1) {
     timeOffset = 0;
   }
 
@@ -771,7 +775,7 @@ export function getResumeScrollElement(): HTMLElement {
     wrapper.className = "autoscroll-resume-wrapper";
     elem = document.createElement("button");
     elem.id = "autoscroll-resume-button";
-    elem.innerText = "Resume Autoscroll";
+    elem.innerText = t("lyrics_resumeAutoscroll");
     elem.classList.add("autoscroll-resume-button");
     elem.setAttribute("autoscroll-hidden", "true");
     elem.addEventListener("click", () => {

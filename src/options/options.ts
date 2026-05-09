@@ -565,6 +565,8 @@ document.addEventListener("DOMContentLoaded", () => {
     animation: 150,
     ghostClass: "dragging",
     forceFallback: true,
+    filter: ".checkbox-container",
+    preventOnFilter: false,
     onUpdate: saveOptions,
   });
 

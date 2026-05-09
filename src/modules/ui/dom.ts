@@ -8,6 +8,9 @@ import {
   FOOTER_NOT_VISIBLE_LOG,
   GENIUS_LOGO_SRC,
   HIDDEN_CLASS,
+  HOMEPAGE_DOMAIN,
+  HOMEPAGE_ICON_URL,
+  HOMEPAGE_URL,
   LOADER_TRANSITION_ENDED,
   LYRICS_AD_OVERLAY_ID,
   LYRICS_CLASS,
@@ -516,7 +519,7 @@ export function addFooter(
   applyActionsBarPlacement(AppState.actionsBarPlacement);
 
   const footerLink = document.getElementById("betterLyricsFooterLink") as HTMLAnchorElement;
-  sourceHref = sourceHref || "https://better-lyrics.boidu.dev/";
+  sourceHref = sourceHref || HOMEPAGE_URL;
 
   const info = providerKey ? providerDisplayInfo[providerKey] : null;
 
@@ -535,7 +538,7 @@ export function addFooter(
     }
     footerLink.appendChild(iconWrapper);
   } else {
-    footerLink.appendChild(document.createTextNode(source || "boidu.dev"));
+    footerLink.textContent = source || HOMEPAGE_DOMAIN;
   }
 
   updateSourceSwitchControls(providerKey);
@@ -834,7 +837,7 @@ function createFooter(song: string, artist: string, album: string, duration: num
     footerContainer.className = `${FOOTER_CLASS}__container ${FOOTER_CLASS}__source`;
 
     const footerImage = document.createElement("img");
-    footerImage.src = "https://better-lyrics.boidu.dev/icon-512.png";
+    footerImage.src = HOMEPAGE_ICON_URL;
     footerImage.alt = "Better Lyrics Logo";
     footerImage.width = 20;
     footerImage.height = 20;
@@ -1285,7 +1288,7 @@ function buildUnisonSubmitUrl(song: string, artist: string, album: string, durat
   if (song) url.searchParams.set("song", song);
   if (artist) url.searchParams.set("artist", artist);
   if (album) url.searchParams.set("album", album);
-  if (duration) url.searchParams.set("duration", duration.toString());
+  if (duration) url.searchParams.set("duration", Math.round(duration).toString());
   url.searchParams.set("videoId", videoId);
   return url;
 }
@@ -1294,7 +1297,7 @@ function buildUnisonSubmitUrl(song: string, artist: string, album: string, durat
  * Injects required head tags including font links and image preloads.
  */
 export async function injectHeadTags(): Promise<void> {
-  const imgURL = "https://better-lyrics.boidu.dev/icon-512.png";
+  const imgURL = HOMEPAGE_ICON_URL;
 
   const imagePreload = document.createElement("link");
   imagePreload.rel = "preload";
