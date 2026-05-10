@@ -244,6 +244,18 @@
 	margin-top: 6rem;
 	padding-inline: calc(0.25em - 2.5px);
 	flex-wrap: wrap;
+	transition:
+		opacity 320ms cubic-bezier(0.4, 0, 0.2, 1),
+		transform 320ms cubic-bezier(0.4, 0, 0.2, 1),
+		filter 320ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: opacity, transform, filter;
+}
+
+#layout[player-fullscreened]:not([blyrics-dfs]) .blyrics-footer--idle-hidden {
+	opacity: 0;
+	transform: translateY(6px) scale(0.98);
+	filter: blur(6px);
+	pointer-events: none;
 }
 
 .blyrics-footer[data-anchor="static"][data-placement^="top-"] {

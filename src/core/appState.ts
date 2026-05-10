@@ -46,6 +46,7 @@ interface AppStateType {
   isUnisonPinnedDockEnabled: boolean;
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
+  isActionsBarAutoHideInFullscreenEnabled: boolean;
   actionsBarPlacement: string;
   actionsBarAnchor: string;
   currentUnisonData: UnisonData | null;
@@ -79,6 +80,7 @@ export const AppState: AppStateType = {
   isUnisonPinnedDockEnabled: true,
   unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
   isUnisonAutoHideInFullscreenEnabled: true,
+  isActionsBarAutoHideInFullscreenEnabled: true,
   actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
   actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR,
   currentUnisonData: null,

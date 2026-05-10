@@ -162,6 +162,14 @@
     "message": "Make the Actions Bar float above the lyrics",
     "description": "Hint text under the Floating toggle in the Actions Bar modal"
   },
+  "options_actionsBarModal_autoHide": {
+    "message": "Auto-hide in fullscreen",
+    "description": "Toggle label inside the Actions Bar modal for auto-hiding the bar when idle in fullscreen"
+  },
+  "options_actionsBarModal_autoHide_hint": {
+    "message": "Hide the Actions Bar when you are idle in fullscreen mode",
+    "description": "Hint text under the Auto-hide in fullscreen toggle"
+  },
   "options_actionsBarModal_position": {
     "message": "Placement",
     "description": "Label above the Actions Bar placement picker"

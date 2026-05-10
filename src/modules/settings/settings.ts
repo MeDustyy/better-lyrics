@@ -1,6 +1,7 @@
 import {
   ACTIONS_BAR_DEFAULT_ANCHOR,
   ACTIONS_BAR_DEFAULT_PLACEMENT,
+  FOOTER_CLASS,
   LOG_PREFIX_CONTENT,
   LYRICS_DISABLED_ATTR,
   UNISON_DOCK_CLASS,
@@ -212,6 +213,7 @@ export function listenForPopupMessages(): void {
       });
       loadActionsBarSettings(() => {
         applyActionsBarPlacement(AppState.actionsBarAnchor, AppState.actionsBarPlacement);
+        hideActionsBarOnIdleInFullscreen();
       });
       AppState.shouldInjectAlbumArt = "Unknown";
       onAlbumArtEnabled(
@@ -261,11 +263,19 @@ export function loadUnisonPinnedDockSettings(callback?: () => void): void {
 }
 
 export function loadActionsBarSettings(callback?: () => void): void {
-  getStorage({ actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR, actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT }, items => {
+  getStorage(
+    {
+      actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR,
+      actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
+      isActionsBarAutoHideInFullscreenEnabled: true,
+    },
+    items => {
     AppState.actionsBarAnchor = items.actionsBarAnchor || ACTIONS_BAR_DEFAULT_ANCHOR;
     AppState.actionsBarPlacement = items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT;
+    AppState.isActionsBarAutoHideInFullscreenEnabled = items.isActionsBarAutoHideInFullscreenEnabled;
     callback?.();
-  });
+    }
+  );
 }
 
 function syncUnisonDock(): void {
@@ -280,13 +290,22 @@ function syncUnisonDock(): void {
 }
 
 const DOCK_IDLE_HIDDEN_CLASS = `${UNISON_DOCK_CLASS}--idle-hidden`;
+const ACTIONS_BAR_IDLE_HIDDEN_CLASS = `${FOOTER_CLASS}--idle-hidden`;
 
 let dockIdleTimer: number | null = null;
 let dockMouseListener: ((this: Document, ev: MouseEvent) => any) | null = null;
+let actionsBarIdleTimer: number | null = null;
+let actionsBarMouseListener: ((this: Document, ev: MouseEvent) => any) | null = null;
 
 function setDockIdleHidden(hidden: boolean): void {
   for (const dock of Array.from(document.getElementsByClassName(UNISON_DOCK_CLASS))) {
     dock.classList.toggle(DOCK_IDLE_HIDDEN_CLASS, hidden);
+  }
+}
+
+function setActionsBarIdleHidden(hidden: boolean): void {
+  for (const footer of Array.from(document.getElementsByClassName(FOOTER_CLASS))) {
+    footer.classList.toggle(ACTIONS_BAR_IDLE_HIDDEN_CLASS, hidden);
   }
 }
 
@@ -323,6 +342,42 @@ export function hideDockOnIdleInFullscreen(): void {
   }
 
   dockMouseListener = handleMouseMove;
+  document.addEventListener("mousemove", handleMouseMove);
+}
+
+export function hideActionsBarOnIdleInFullscreen(): void {
+  if (actionsBarMouseListener) {
+    document.removeEventListener("mousemove", actionsBarMouseListener);
+    actionsBarMouseListener = null;
+  }
+  if (actionsBarIdleTimer) {
+    window.clearTimeout(actionsBarIdleTimer);
+    actionsBarIdleTimer = null;
+  }
+  setActionsBarIdleHidden(false);
+
+  if (!AppState.isActionsBarAutoHideInFullscreenEnabled) return;
+
+  let barVisible = true;
+
+  function hideBar() {
+    actionsBarIdleTimer = null;
+    if (!barVisible) return;
+    if (!document.getElementById("layout")?.hasAttribute("player-fullscreened")) return;
+    setActionsBarIdleHidden(true);
+    barVisible = false;
+  }
+
+  function handleMouseMove() {
+    if (actionsBarIdleTimer) window.clearTimeout(actionsBarIdleTimer);
+    if (!barVisible) {
+      setActionsBarIdleHidden(false);
+      barVisible = true;
+    }
+    actionsBarIdleTimer = window.setTimeout(hideBar, 3000);
+  }
+
+  actionsBarMouseListener = handleMouseMove;
   document.addEventListener("mousemove", handleMouseMove);
 }
 

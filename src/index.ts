@@ -6,6 +6,7 @@ import { initProviders } from "@modules/lyrics/providers/shared";
 import { setupRequestSniffer } from "@modules/lyrics/requestSniffer/requestSniffer";
 import {
   handleSettings,
+  hideActionsBarOnIdleInFullscreen,
   hideCursorOnIdle,
   hideDockOnIdleInFullscreen,
   listenForPopupMessages,
@@ -49,7 +50,7 @@ async function modify(): Promise<void> {
   loadTranslationSettings();
   loadPassiveScrollSetting();
   loadUnisonPinnedDockSettings(hideDockOnIdleInFullscreen);
-  loadActionsBarSettings();
+  loadActionsBarSettings(hideActionsBarOnIdleInFullscreen);
   subscribeToCustomStyles();
   await purgeExpiredKeys();
   await saveCacheInfo();

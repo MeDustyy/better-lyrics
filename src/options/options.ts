@@ -31,6 +31,7 @@ interface Options {
   isUnisonPinnedDockEnabled: boolean;
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
+  isActionsBarAutoHideInFullscreenEnabled: boolean;
   actionsBarPlacement: string;
   actionsBarAnchor: string;
 }
@@ -71,6 +72,9 @@ const getOptionsFromForm = (): Options => {
     unisonPinnedDockPosition: getSelectedUnisonPosition(),
     isUnisonAutoHideInFullscreenEnabled: (
       document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement
+    ).checked,
+    isActionsBarAutoHideInFullscreenEnabled: (
+      document.getElementById("isActionsBarAutoHideInFullscreenEnabled") as HTMLInputElement
     ).checked,
     actionsBarPlacement: getSelectedActionsBarPlacement(),
     actionsBarAnchor: (document.getElementById("isActionsBarFloating") as HTMLInputElement).checked ? "floating" : "static"
@@ -245,6 +249,7 @@ const restoreOptions = (): void => {
     isUnisonPinnedDockEnabled: true,
     unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
     isUnisonAutoHideInFullscreenEnabled: true,
+    isActionsBarAutoHideInFullscreenEnabled: true,
     actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
     actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR
   };
@@ -273,6 +278,8 @@ const setOptionsInForm = (items: Options): void => {
   (document.getElementById("isUnisonPinnedDockEnabled") as HTMLInputElement).checked = items.isUnisonPinnedDockEnabled;
   (document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement).checked =
     items.isUnisonAutoHideInFullscreenEnabled;
+  (document.getElementById("isActionsBarAutoHideInFullscreenEnabled") as HTMLInputElement).checked =
+    items.isActionsBarAutoHideInFullscreenEnabled;
   (document.getElementById("isActionsBarFloating") as HTMLInputElement).checked = items.actionsBarAnchor === "floating";
   setUnisonPositionInForm(items.unisonPinnedDockPosition);
   setActionsBarPlacementInForm(items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT);
@@ -1024,8 +1031,9 @@ function setupActionsBarModal(): void {
   const closeBtn = document.getElementById("actions-bar-modal-close");
   const positionFrame = document.getElementById("actions-bar-position-frame");
   const anchorFloatingToggle = document.getElementById("isActionsBarFloating") as HTMLInputElement | null;
+  const autoHideToggle = document.getElementById("isActionsBarAutoHideInFullscreenEnabled") as HTMLInputElement | null;
 
-  if (!openBtn || !overlay || !closeBtn || !positionFrame || !anchorFloatingToggle) return;
+  if (!openBtn || !overlay || !closeBtn || !positionFrame || !anchorFloatingToggle || !autoHideToggle) return;
 
   const closeModal = (): void => overlay.classList.remove("active");
 
@@ -1048,4 +1056,5 @@ function setupActionsBarModal(): void {
   });
 
   anchorFloatingToggle.addEventListener("change", saveOptions);
+  autoHideToggle.addEventListener("change", saveOptions);
 }
