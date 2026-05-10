@@ -2,6 +2,7 @@
 
 import {
   ACTIONS_BAR_DEFAULT_PLACEMENT,
+  ACTIONS_BAR_DEFAULT_ANCHOR,
   LOG_PREFIX,
   ROMANIZATION_LANGUAGES,
   UNISON_DOCK_DEFAULT_POSITION,
@@ -31,6 +32,7 @@ interface Options {
   unisonPinnedDockPosition: string;
   isUnisonAutoHideInFullscreenEnabled: boolean;
   actionsBarPlacement: string;
+  actionsBarAnchor: string;
 }
 
 const saveOptions = (): void => {
@@ -71,6 +73,7 @@ const getOptionsFromForm = (): Options => {
       document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement
     ).checked,
     actionsBarPlacement: getSelectedActionsBarPlacement(),
+    actionsBarAnchor: (document.getElementById("isActionsBarFloating") as HTMLInputElement).checked ? "floating" : "static"
   };
 };
 
@@ -243,6 +246,7 @@ const restoreOptions = (): void => {
     unisonPinnedDockPosition: UNISON_DOCK_DEFAULT_POSITION,
     isUnisonAutoHideInFullscreenEnabled: true,
     actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT,
+    actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR
   };
 
   chrome.storage.sync.get(defaultOptions, setOptionsInForm);
@@ -269,6 +273,7 @@ const setOptionsInForm = (items: Options): void => {
   (document.getElementById("isUnisonPinnedDockEnabled") as HTMLInputElement).checked = items.isUnisonPinnedDockEnabled;
   (document.getElementById("isUnisonAutoHideInFullscreenEnabled") as HTMLInputElement).checked =
     items.isUnisonAutoHideInFullscreenEnabled;
+  (document.getElementById("isActionsBarFloating") as HTMLInputElement).checked = items.actionsBarAnchor === "floating";
   setUnisonPositionInForm(items.unisonPinnedDockPosition);
   setActionsBarPlacementInForm(items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT);
   syncUnisonModalDependentState(items.isUnisonPinnedDockEnabled);
@@ -1017,9 +1022,10 @@ function setupActionsBarModal(): void {
   const openBtn = document.getElementById("actions-bar-btn");
   const overlay = document.getElementById("actions-bar-modal-overlay");
   const closeBtn = document.getElementById("actions-bar-modal-close");
-  const frame = document.getElementById("actions-bar-position-frame");
+  const positionFrame = document.getElementById("actions-bar-position-frame");
+  const anchorFloatingToggle = document.getElementById("isActionsBarFloating") as HTMLInputElement | null;
 
-  if (!openBtn || !overlay || !closeBtn || !frame) return;
+  if (!openBtn || !overlay || !closeBtn || !positionFrame || !anchorFloatingToggle) return;
 
   const closeModal = (): void => overlay.classList.remove("active");
 
@@ -1034,10 +1040,12 @@ function setupActionsBarModal(): void {
     if (e.key === "Escape" && overlay.classList.contains("active")) closeModal();
   });
 
-  frame.addEventListener("click", e => {
+  positionFrame.addEventListener("click", e => {
     const cell = (e.target as HTMLElement).closest<HTMLElement>(".position-cell");
     if (!cell?.dataset.placement) return;
     setActionsBarPlacementInForm(cell.dataset.placement);
     saveOptions();
   });
+
+  anchorFloatingToggle.addEventListener("change", saveOptions);
 }

@@ -1,6 +1,7 @@
 import {
   AD_PLAYING_ATTR,
   ACTIONS_BAR_DEFAULT_PLACEMENT,
+  ACTIONS_BAR_DEFAULT_ANCHOR,
   DISCORD_INVITE_URL,
   DISCORD_LOGO_SRC,
   FONT_LINK,
@@ -56,13 +57,17 @@ const voteIcons = {
 
 const VOTE_ACTIVE_CLASS = `${FOOTER_CLASS}__vote--active`;
 
-type ActionsBarPlacement = "static-bottom" | "static-top" | "floating-bottom" | "floating-top";
+type ActionsBarAnchor = "floating" | "static";
+type ActionsBarPlacement = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 
+const ACTIONS_BAR_ANCHORS: ActionsBarAnchor[] = ["floating", "static"];
 const ACTIONS_BAR_PLACEMENTS: ActionsBarPlacement[] = [
-  "static-bottom",
-  "static-top",
-  "floating-bottom",
-  "floating-top",
+  "top-left",
+  "top-center",
+  "top-right",
+  "bottom-left",
+  "bottom-center",
+  "bottom-right",
 ];
 
 const ACTIONS_BAR_EDGE_GAP = 12;
@@ -75,6 +80,13 @@ const ACTIONS_BAR_EDGE_GAP_VAR = "--blyrics-actions-bar-edge-gap";
 const ACTIONS_BAR_LOADER_OFFSET_VAR = "--blyrics-actions-bar-loader-offset";
 const ACTIONS_BAR_RESUME_OFFSET_VAR = "--blyrics-actions-bar-resume-offset";
 
+function normalizeAnchorBarAnchor(value?: string): ActionsBarAnchor {
+  if (ACTIONS_BAR_ANCHORS.includes(value as ActionsBarAnchor)) {
+    return value as ActionsBarAnchor;
+  }
+  return ACTIONS_BAR_DEFAULT_ANCHOR;
+}
+
 function normalizeActionsBarPlacement(value?: string): ActionsBarPlacement {
   if (ACTIONS_BAR_PLACEMENTS.includes(value as ActionsBarPlacement)) {
     return value as ActionsBarPlacement;
@@ -82,7 +94,7 @@ function normalizeActionsBarPlacement(value?: string): ActionsBarPlacement {
   return ACTIONS_BAR_DEFAULT_PLACEMENT;
 }
 
-function updateActionsBarLayoutVars(footer?: HTMLElement, placement?: ActionsBarPlacement): void {
+function updateActionsBarLayoutVars(footer?: HTMLElement, anchor?: ActionsBarAnchor, placement?: ActionsBarPlacement): void {
   const root = document.documentElement;
   root.style.setProperty(ACTIONS_BAR_EDGE_GAP_VAR, `${ACTIONS_BAR_EDGE_GAP}px`);
 
@@ -97,13 +109,14 @@ function updateActionsBarLayoutVars(footer?: HTMLElement, placement?: ActionsBar
     return;
   }
 
+  const resolvedAnchor = anchor ?? normalizeAnchorBarAnchor(resolvedFooter.dataset.anchor);
   const resolvedPlacement = placement ?? normalizeActionsBarPlacement(resolvedFooter.dataset.placement);
   const barHeight = Math.max(resolvedFooter.getBoundingClientRect().height, resolvedFooter.scrollHeight);
   const offset = Math.max(0, barHeight) + ACTIONS_BAR_EDGE_GAP;
   const loaderOffset = resolvedPlacement.endsWith("top") ? `${offset}px` : "0px";
   root.style.setProperty(ACTIONS_BAR_LOADER_OFFSET_VAR, loaderOffset);
 
-  if (!resolvedPlacement.startsWith("floating")) {
+  if (resolvedAnchor === "static") {
     root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
     root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
     root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, "0px");
@@ -111,7 +124,7 @@ function updateActionsBarLayoutVars(footer?: HTMLElement, placement?: ActionsBar
     return;
   }
 
-  if (resolvedPlacement.endsWith("top")) {
+  if (resolvedPlacement.startsWith("top")) {
     root.style.setProperty(ACTIONS_BAR_SPACE_TOP_VAR, "0px");
     root.style.setProperty(ACTIONS_BAR_SPACE_BOTTOM_VAR, "0px");
     root.style.setProperty(ACTIONS_BAR_DOCK_OFFSET_TOP_VAR, `${offset}px`);
@@ -124,24 +137,26 @@ function updateActionsBarLayoutVars(footer?: HTMLElement, placement?: ActionsBar
   }
 }
 
-export function applyActionsBarPlacement(placement: string): void {
+export function applyActionsBarPlacement(anchor: string, placement: string): void {
   const footer = document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined;
   if (!footer) {
     updateActionsBarLayoutVars();
     return;
   }
-
+  
+  const resolvedAnchor = normalizeAnchorBarAnchor(anchor);
   const resolvedPlacement = normalizeActionsBarPlacement(placement);
+  footer.dataset.anchor = resolvedAnchor;
   footer.dataset.placement = resolvedPlacement;
 
   const lyricsElement = document.getElementsByClassName(LYRICS_CLASS)[0] as HTMLElement | undefined;
   const wrapper = document.getElementById(LYRICS_WRAPPER_ID) as HTMLElement | null;
   const content = getLyricsContentContainer(wrapper) ?? undefined;
 
-  if (resolvedPlacement === "static-bottom" && lyricsElement) {
+  if (resolvedAnchor === "static" && resolvedPlacement.startsWith("bottom") && lyricsElement) {
     lyricsElement.appendChild(footer);
   } else if (wrapper) {
-    if (resolvedPlacement.endsWith("top") && content && wrapper.contains(content)) {
+    if (resolvedPlacement.startsWith("top") && content && wrapper.contains(content)) {
       wrapper.insertBefore(footer, content);
     } else {
       wrapper.appendChild(footer);
@@ -150,7 +165,7 @@ export function applyActionsBarPlacement(placement: string): void {
     lyricsElement.appendChild(footer);
   }
 
-  updateActionsBarLayoutVars(footer, resolvedPlacement);
+  updateActionsBarLayoutVars(footer, resolvedAnchor, resolvedPlacement);
   updateResumeButtonOffset();
   setExtraHeight();
 }
@@ -158,6 +173,7 @@ export function applyActionsBarPlacement(placement: string): void {
 export function updateResumeButtonOffset(): void {
   const root = document.documentElement;
   const placement = normalizeActionsBarPlacement(AppState.actionsBarPlacement);
+  const anchor = normalizeAnchorBarAnchor(AppState.actionsBarAnchor);
   if (!placement.endsWith("top")) {
     root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, "0px");
     return;
@@ -173,7 +189,7 @@ export function updateResumeButtonOffset(): void {
   const barHeight = Math.max(footer.getBoundingClientRect().height, footer.scrollHeight);
   const offset = Math.max(0, barHeight) + ACTIONS_BAR_EDGE_GAP;
 
-  if (placement === "floating-top") {
+  if (anchor === "floating" && placement.startsWith("top")) {
     root.style.setProperty(ACTIONS_BAR_RESUME_OFFSET_VAR, `${offset}px`);
     return;
   }
@@ -516,7 +532,7 @@ export function addFooter(
   footer.classList.add(FOOTER_CLASS);
   lyricsElement.appendChild(footer);
   createFooter(song, artist, album, duration, videoId);
-  applyActionsBarPlacement(AppState.actionsBarPlacement);
+  applyActionsBarPlacement(AppState.actionsBarAnchor, AppState.actionsBarPlacement);
 
   const footerLink = document.getElementById("betterLyricsFooterLink") as HTMLAnchorElement;
   sourceHref = sourceHref || HOMEPAGE_URL;
@@ -1432,8 +1448,9 @@ export function setExtraHeight() {
 
   const footer = document.getElementsByClassName(FOOTER_CLASS)[0] as HTMLElement | undefined;
   const lastLyric = document.querySelector(".blyrics--line:not(:has(~ .blyrics--line))");
+  const anchor = normalizeAnchorBarAnchor(footer?.dataset.anchor);
   const placement = normalizeActionsBarPlacement(footer?.dataset.placement);
-  const footerHeight = placement === "static-bottom" ? footer?.getBoundingClientRect().height || 0 : 0;
+  const footerHeight = anchor === "static" && placement.startsWith("bottom") ? footer?.getBoundingClientRect().height || 0 : 0;
 
   let extraHeight = Math.max(
     tabRendererHeight * (1 - scrollPosOffsetRatio) -

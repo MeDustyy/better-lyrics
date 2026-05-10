@@ -1957,33 +1957,35 @@ input.cm-textfield:focus-visible {
 /* -- Actions Bar Modal --------------------------*/
 
 .position-frame--actions-bar {
-	width: 160px;
 	height: 160px;
-	grid-template-columns: repeat(2, 1fr);
 	grid-template-rows: repeat(2, 1fr);
 }
 
-.actions-bar-position-cell[data-placement="static-top"] {
+.actions-bar-modal-row:first-of-type {
+    margin-top: 0;
+}
+
+.actions-bar-position-cell[data-placement="top-left"] {
 	grid-row: 1;
 	grid-column: 1;
 	border-top-left-radius: 12px;
 }
 
-.actions-bar-position-cell[data-placement="floating-top"] {
+.actions-bar-position-cell[data-placement="top-right"] {
 	grid-row: 1;
-	grid-column: 2;
+	grid-column: 3;
 	border-top-right-radius: 12px;
 }
 
-.actions-bar-position-cell[data-placement="static-bottom"] {
+.actions-bar-position-cell[data-placement="bottom-left"] {
 	grid-row: 2;
 	grid-column: 1;
 	border-bottom-left-radius: 12px;
 }
 
-.actions-bar-position-cell[data-placement="floating-bottom"] {
+.actions-bar-position-cell[data-placement="bottom-right"] {
 	grid-row: 2;
-	grid-column: 2;
+	grid-column: 3;
 	border-bottom-right-radius: 12px;
 }
 

@@ -154,25 +154,41 @@
     "message": "Actions Bar",
     "description": "Title of the Actions Bar modal"
   },
+  "options_actionsBarModal_floating": {
+    "message": "Floating",
+    "description": "Label above the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_floating_hint": {
+    "message": "Make the Actions Bar float above the lyrics",
+    "description": "Hint text under the Floating toggle in the Actions Bar modal"
+  },
   "options_actionsBarModal_position": {
     "message": "Placement",
     "description": "Label above the Actions Bar placement picker"
   },
-  "options_actionsBarModal_position_staticTop": {
-    "message": "Static top",
-    "description": "Tooltip for the static top cell in the Actions Bar placement picker"
+  "options_actionsBarModal_position_topLeft": {
+    "message": "Top left",
+    "description": "Tooltip for the top-left cell in the Actions Bar placement picker"
   },
-  "options_actionsBarModal_position_floatingTop": {
-    "message": "Floating top",
-    "description": "Tooltip for the floating top cell in the Actions Bar placement picker"
+  "options_actionsBarModal_position_topCenter": {
+    "message": "Top center",
+    "description": "Tooltip for the top-center cell in the Actions Bar placement picker"
   },
-  "options_actionsBarModal_position_staticBottom": {
-    "message": "Static bottom",
-    "description": "Tooltip for the static bottom cell in the Actions Bar placement picker"
+  "options_actionsBarModal_position_topRight": {
+    "message": "Top right",
+    "description": "Tooltip for the top-right cell in the Actions Bar placement picker"
   },
-  "options_actionsBarModal_position_floatingBottom": {
-    "message": "Floating bottom",
-    "description": "Tooltip for the floating bottom cell in the Actions Bar placement picker"
+  "options_actionsBarModal_position_bottomLeft": {
+    "message": "Bottom left",
+    "description": "Tooltip for the bottom-left cell in the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_bottomCenter": {
+    "message": "Bottom center",
+    "description": "Tooltip for the bottom-center cell in the Actions Bar placement picker"
+  },
+  "options_actionsBarModal_position_bottomRight": {
+    "message": "Bottom right",
+    "description": "Tooltip for the bottom-right cell in the Actions Bar placement picker"
   },
 
   "options_language_displayLanguage": {

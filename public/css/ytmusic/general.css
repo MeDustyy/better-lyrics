@@ -65,8 +65,7 @@ ytmusic-app[blyrics-stylized] #player-bar-background {
   scrollbar-color: transparent transparent;
 }
 
-#tab-renderer[page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]:has(.blyrics-footer[data-placement="static-top"]),
-#tab-renderer[page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]:has(.blyrics-footer[data-placement="floating-top"]) {
+#tab-renderer[page-type="MUSIC_PAGE_TYPE_TRACK_LYRICS"]:has(.blyrics-footer[data-placement^="top"]) {
   mask-image: none;
   -webkit-mask-image: none;
 }

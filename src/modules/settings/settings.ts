@@ -1,4 +1,5 @@
 import {
+  ACTIONS_BAR_DEFAULT_ANCHOR,
   ACTIONS_BAR_DEFAULT_PLACEMENT,
   LOG_PREFIX_CONTENT,
   LYRICS_DISABLED_ATTR,
@@ -210,7 +211,7 @@ export function listenForPopupMessages(): void {
         hideDockOnIdleInFullscreen();
       });
       loadActionsBarSettings(() => {
-        applyActionsBarPlacement(AppState.actionsBarPlacement);
+        applyActionsBarPlacement(AppState.actionsBarAnchor, AppState.actionsBarPlacement);
       });
       AppState.shouldInjectAlbumArt = "Unknown";
       onAlbumArtEnabled(
@@ -260,7 +261,8 @@ export function loadUnisonPinnedDockSettings(callback?: () => void): void {
 }
 
 export function loadActionsBarSettings(callback?: () => void): void {
-  getStorage({ actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT }, items => {
+  getStorage({ actionsBarAnchor: ACTIONS_BAR_DEFAULT_ANCHOR, actionsBarPlacement: ACTIONS_BAR_DEFAULT_PLACEMENT }, items => {
+    AppState.actionsBarAnchor = items.actionsBarAnchor || ACTIONS_BAR_DEFAULT_ANCHOR;
     AppState.actionsBarPlacement = items.actionsBarPlacement || ACTIONS_BAR_DEFAULT_PLACEMENT;
     callback?.();
   });

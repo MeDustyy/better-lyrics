@@ -234,7 +234,7 @@
 
 /* Footer styles */
 .blyrics-footer {
-	height: 0;
+	height: auto;
 	display: flex;
 	align-items: flex-start;
 	gap: 1rem;
@@ -246,26 +246,44 @@
 	flex-wrap: wrap;
 }
 
-.blyrics-footer[data-placement="static-top"] {
+.blyrics-footer[data-anchor="static"][data-placement^="top-"] {
 	margin-top: 2rem;
 	margin-bottom: 6rem;
 	z-index: 120;
 }
 
-.blyrics-footer[data-placement^="floating-"] {
+.blyrics-footer[data-anchor="floating"] {
 	height: auto;
+	position: sticky;
 	margin-top: 0;
 	margin-bottom: 0;
-	position: sticky;
+	padding: 1rem;
+	backdrop-filter: blur(12px);
+	border-radius: var(--blyrics-small-border-radius);
 	z-index: 120;
 }
 
-.blyrics-footer[data-placement="floating-top"] {
+.blyrics-footer[data-anchor="floating"][data-placement^="top-"] {
 	top: var(--blyrics-actions-bar-edge-gap, 12px);
 }
 
-.blyrics-footer[data-placement="floating-bottom"] {
+.blyrics-footer[data-anchor="floating"][data-placement^="bottom-"] {
 	bottom: var(--blyrics-actions-bar-edge-gap, 12px);
+}
+
+.blyrics-footer[data-placement$="left"],
+.blyrics-footer__unison[data-placement$="left"] {
+	justify-content: flex-start;
+}
+
+.blyrics-footer[data-placement$="center"],
+.blyrics-footer__unison[data-placement$="center"] {
+	justify-content: center;
+}
+
+.blyrics-footer[data-placement$="right"],
+.blyrics-footer__unison[data-placement$="right"] {
+	justify-content: flex-end;
 }
 
 .blyrics-footer__discord {
@@ -334,7 +352,6 @@
 	flex-basis: 100%;
 	width: 100%;
 	display: flex;
-	margin-top: 2rem;
 }
 
 .blyrics-footer__container.blyrics-footer__unison-card {
@@ -588,7 +605,7 @@
 	width: 20px;
 	height: 20px;
 	padding: 0;
-	margin-inline: 0.25rem;
+	margin-inline: 0.5rem;
 	box-sizing: border-box;
 	border-radius: var(--blyrics-small-border-radius);
 	display: grid;
@@ -664,7 +681,7 @@
 	width: 100%;
 	height: 0;
 	background: rgba(0, 0, 0, 0);
-	z-index: 100;
+	z-index: 150;
 }
 
 .autoscroll-resume-button {
